@@ -4,10 +4,11 @@ public class ListItem extends Food{
 	
 	private int itemId;
 	private int foodId;
-	private int listId;
+	private long listId;
 	private int quantity;
 	private String notes;
 	private String size;
+	private String foodname;
 	
 	
 	
@@ -23,11 +24,11 @@ public class ListItem extends Food{
 	public void setFoodId(int foodId) {
 		this.foodId = foodId;
 	}
-	public int getListId() {
+	public long getListId() {
 		return listId;
 	}
-	public void setListId(int listId) {
-		this.listId = listId;
+	public void setListId(long currListId) {
+		this.listId = currListId;
 	}
 	public int getQuantity() {
 		return quantity;
@@ -46,6 +47,12 @@ public class ListItem extends Food{
 	}
 	public void setSize(String size) {
 		this.size = size;
+	}
+	public String getFoodname() {
+		return foodname;
+	}
+	public void setFoodname(String foodname) {
+		this.foodname = foodname;
 	}
 	
 	
