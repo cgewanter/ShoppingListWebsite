@@ -133,7 +133,7 @@ public class DAObject {
 	
 	
 	//this is the fake one, for before the cookies work
-	public List<ShopList> getLists() {
+	public List<ShopList> getLists(String username) {
 		System.out.println("in getLists in dao");
 		RowMapper<ShopList> rowMapper = (rs, index) -> {
 			ShopList sl = new ShopList();
@@ -143,7 +143,8 @@ public class DAObject {
 			sl.setCateg(rs.getString("Categ"));
 			return sl;
 		};
-		String sql = "select * from lists";
+		
+		String sql = "select * from lists inner join users on lists.userid = users.userid where users.username = '" + username + "'";
 		//System.out.println("user id : " + user.getUserId());
 		List<ShopList> records = jdbcTemplate.query(sql,  rowMapper);
 		System.out.println("In dao.getLists(), here are the lists");
@@ -200,7 +201,7 @@ public class DAObject {
 			System.out.println("no elements in the list");
 		}
 		for (int i =0; i<records.size(); i++) {
-			System.out.println(records.get(i).getItemId());
+			System.out.println(records.get(i).getFoodName());
 		}
 		return records;
 	}

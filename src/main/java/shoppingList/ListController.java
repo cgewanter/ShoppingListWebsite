@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @CrossOrigin
 @RestController
 public class ListController {
@@ -38,48 +38,57 @@ public class ListController {
 	private long currListId;
 
 	private static HashMap<String, User> usernames = new HashMap<String, User>();
-	
+
 	private static final ConcurrentHashMap<String, User> sessions = new ConcurrentHashMap<String, User>();
 
 	//COMPLETED AND WORKING METHODS:
-	
+
 	//**Login method
 	@RequestMapping(value="/login", method=RequestMethod.POST)
 	public ResponseEntity<Boolean> processLogin(@RequestBody String username){
-		
+
 		System.out.println("in controller processLogin");
 		User theUser = dao.getUser(username);
 		this.currentUser = theUser;
 		System.out.println("The user is: " + theUser.getUsername() + " " + theUser.getFirstname() + " " 
-							+ theUser.getLastname() );
+				+ theUser.getLastname() );
 		UUID sessionId = UUID.randomUUID();
 		HttpCookie cookie;
 
 		if (theUser != null){
 			//add them to the session
 			sessions.put(sessionId.toString(), theUser);
-			
+
 			//add to username hashmap
 			usernames.put(theUser.getUsername(), theUser);
-			
+
 			System.out.println("we put this user in sessions hashmap");
 			//create their cookie
 			cookie = ResponseCookie.from("sessionID", sessionId.toString()).path("/").build();
-			HttpHeaders headers = new HttpHeaders();
-			headers.set(HttpHeaders.SET_COOKIE, cookie.toString());
-			
-			System.out.println("We have our cookie: " + cookie.toString());
-			//headers.set("HeaderName", "Headervalue"); - this we had in class. But since we have cookies we should need it
-			return new ResponseEntity<>(true, headers, HttpStatus.ACCEPTED);
+
+			System.out.println("We have our cookie: " + ((ResponseCookie) cookie).toString());
+
 		}
-		return null;
+
+		else {
+			cookie = ResponseCookie.from("loggedIn", "false").path("/").build();
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(HttpHeaders.SET_COOKIE, cookie.toString());
+
+		//headers.set("HeaderName", "Headervalue"); - this we had in class. But since we have cookies we should need it
+		return new ResponseEntity<>(true, headers, HttpStatus.ACCEPTED);
+
+
+		//return null;
 	}
-	
+
 	//**Add List Method:
 	@RequestMapping(path="/addlist", method = RequestMethod.POST)
 	public boolean createNewList(@RequestBody String listname) {
-		
-		
+
+
 		System.out.println("Received in controller:" + listname);
 		ShopList list = new ShopList();
 		list.setListTitle(listname);
@@ -102,37 +111,65 @@ public class ListController {
 		dao.addUser(newUser);
 		System.out.println("Current user: " + this.username);
 	}
-	
-	
-	
+
+
+
 	//fake one gets all lists
-		@RequestMapping(path ="/showlists", method = RequestMethod.GET)
-		public List<ShopList> getLists(){
-			System.out.println("Received request for lists");
-			
-			List<ShopList> list = dao.getLists();
-			return list;
+	/*@RequestMapping(path ="/showlists", method = RequestMethod.GET)
+	public List<ShopList> getLists(){
+		System.out.println("Received request for lists");
+
+		List<ShopList> list = dao.getLists();
+		return list;
+	}*/
+
+	//try with Shifra's code
+	@RequestMapping(path = "/showlists", method = RequestMethod.GET)
+	public List<ShopList> getLists(@CookieValue (value = "sessionID", defaultValue="NoCookie") String sessionID) {
+		System.out.println("in controller getLists");
+		if (sessionID.equals("NoCookie")) {
+			System.out.println("went to default, no cookie");
+			return null;
+		}
+		else {
+			String username = sessions.get(sessionID).getUsername();
+
+			List<ShopList> lists = dao.getLists(username);
+			return lists;
 		}
 		
-	
+	}
+
+
+
+	//try with cookies:
+	/*@RequestMapping(path = "/showlists", method = RequestMethod.GET)
+	public List<ShopList> getLists(HttpServletRequest request) {
+		System.out.println("in controller getLists");
+		Cookie[] cookies = request.getCookies();
+		//System.out.println("in getLists(), amt of cookies: " + cookies.length);
+		List<ShopList> list = dao.getLists();
+		return list;
+	}
+	 */
 	@RequestMapping(path ="/fooditems", method = RequestMethod.GET)
 	public List<Food> getFoodItems(){
 		System.out.println("in controller getFoodItems()");
-		
+
 		List<Food> foodList = dao.getFoodList();
 		return foodList;
 	}
-	
+
 	@RequestMapping(value ="/lists/{listId}", method = RequestMethod.GET)
-	public List<ListItem>  showItemList(@PathVariable("listId") String listId){
+	public List<ListItem> showItemList(@PathVariable("listId") String listId){
 		Long lListId = Long.valueOf(listId);
 		this.currListId = lListId;
-		System.out.println("in controller manage lists.");
+		System.out.println("in controller showItemList lists.");
 		System.out.println("ShopList id: " + listId);
 		List<ListItem> items = dao.getListItems(lListId);
 		return items;
 	}
-	
+
 	@RequestMapping(path ="/additem", method = RequestMethod.POST)
 	public void addItem(@RequestBody ListItem item) {
 		System.out.println("in controller addItem");
@@ -140,7 +177,7 @@ public class ListController {
 		item.setListId(this.currListId);
 		dao.addItem(item);
 	}
-	
+
 	@RequestMapping(path ="/lists/{listId}", method = RequestMethod.POST)
 	public void deleteList(@PathVariable("listId") String listId) {
 		Long lListId = Long.valueOf(listId);
@@ -148,11 +185,8 @@ public class ListController {
 		dao.deleteList(lListId);
 	}
 
-	
-	
-	
-//----------------------------------------------------------------------------------
-	
+	//----------------------------------------------------------------------------------
+
 	//NEED WORK METHODS:
 	/*
 	@RequestMapping(path ="/showlists", method = RequestMethod.GET)
@@ -162,7 +196,7 @@ public class ListController {
 		List<ShopList> list = dao.getLists(sessions.get(sessionId));
 		return list;
 	}*/
-	
+
 	//for trial
 	/*@RequestMapping(path ="/showlists", method = RequestMethod.GET)
 	public List<ShopList> getLists(@RequestBody String username){
@@ -172,8 +206,9 @@ public class ListController {
 		return list;
 	}*/
 
-	
-	
+
+
+
 	@RequestMapping(path ="/items", method = RequestMethod.GET)
 	public List<String> retrieveLists(){
 		System.out.println("Received request for items");
@@ -189,8 +224,8 @@ public class ListController {
 		dao.addItem(newItem);
 	}
 
-	
-	
+
+
 	@RequestMapping("/a/{id}") //will pick up this id from the path
 	public String indexA(@PathVariable(name="id")String id) {
 		return "Greetings from Spring Boot! Hello from A. The id you passed is " + id;
