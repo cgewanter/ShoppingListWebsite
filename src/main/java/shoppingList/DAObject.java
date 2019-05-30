@@ -32,9 +32,10 @@ public class DAObject {
 		DataSource source = getDataSource();
 		this.jdbcTemplate = new JdbcTemplate(source);
 	}	
-	
+
 	public User getUser(String username) {
-		System.out.println("in getUser in dao");
+		System.out.println("in getUser in d"
+				+ "ao");
 		RowMapper<User> rowMapper = (rs, index) -> {
 			User theUser = new User();
 			theUser.setFirstname(rs.getString("Firstname"));
@@ -51,7 +52,7 @@ public class DAObject {
 
 		return user;
 	}
-	
+
 	public void addUser(User user) {
 		System.out.println("in DAO addUser");
 		jdbcTemplate.update(
@@ -64,7 +65,7 @@ public class DAObject {
 		System.out.println("in dao in addshoplist");
 		System.out.println("user id: " + list.getUserId());
 		System.out.println("In dao, before update query, the list title is : " + list.getListTitle());
-		
+
 		jdbcTemplate.update(
 				"insert into lists (listid, listtitle, categ, userid) values (?,?,?,?)",
 				null, list.getListTitle(), list.getCateg(), list.getUserId());
@@ -72,9 +73,9 @@ public class DAObject {
 		System.out.println("added a list!");
 		return true;
 	}
-	
-	
-	
+
+
+
 	public void deleteList(Long listId) {
 		System.out.println("in dao delete list");
 		//bec of foreign key, first delete from listItem table
@@ -82,57 +83,7 @@ public class DAObject {
 		jdbcTemplate.update("delete from lists where listId = ?", listId);
 		System.out.println("deleted list");
 	}
-//-----------------------------------------------------------------------------------------------------------
 
-	
-	
-	
-	/*  this is the real one, for when the cookies work.
-	 * 
-	 * public List<ShopList> getLists(User user) {
-		System.out.println("in getLists in dao");
-		RowMapper<ShopList> rowMapper = (rs, index) -> {
-			ShopList sl = new ShopList();
-			sl.setListId(rs.getInt("ListId"));
-			sl.setListTitle(rs.getString("ListTitle"));
-			sl.setUserId(rs.getInt("UserId"));
-			sl.setCateg(rs.getString("Categ"));
-			return sl;
-		};
-		String sql = "select * from lists where userid = ?";
-		System.out.println("user id : " + user.getUserId());
-		List<ShopList> records = jdbcTemplate.query(sql, new Object[] {user.getUserId()}, rowMapper);
-		System.out.println("In dao.getLists(), here are the lists for " + user.getUsername());
-		for (int i = 0; i < records.size(); i++) {
-			System.out.println(records.get(i).getListTitle());
-		}
-		return records;
-	}
-	*/
-	
-	//trial one
-	/*public List<ShopList> getLists(User user) {
-		System.out.println("in getLists in dao");
-		RowMapper<ShopList> rowMapper = (rs, index) -> {
-			ShopList sl = new ShopList();
-			sl.setListId(rs.getInt("ListId"));
-			sl.setListTitle(rs.getString("ListTitle"));
-			sl.setUserId(rs.getInt("UserId"));
-			sl.setCateg(rs.getString("Categ"));
-			return sl;
-		};
-		String sql = "select * from lists where userid = ?";
-		System.out.println("user id : " + user.getUserId());
-		List<ShopList> records = jdbcTemplate.query(sql, new Object[] {user.getUserId()}, rowMapper);
-		System.out.println("In dao.getLists(), here are the lists for " + user.getUsername());
-		for (int i = 0; i < records.size(); i++) {
-			System.out.println(records.get(i).getListTitle());
-		}
-		return records;
-	}*/
-	
-	
-	//this is the fake one, for before the cookies work
 	public List<ShopList> getLists(String username) {
 		System.out.println("in getLists in dao");
 		RowMapper<ShopList> rowMapper = (rs, index) -> {
@@ -143,7 +94,7 @@ public class DAObject {
 			sl.setCateg(rs.getString("Categ"));
 			return sl;
 		};
-		
+
 		String sql = "select * from lists inner join users on lists.userid = users.userid where users.username = '" + username + "'";
 		//System.out.println("user id : " + user.getUserId());
 		List<ShopList> records = jdbcTemplate.query(sql,  rowMapper);
@@ -153,10 +104,17 @@ public class DAObject {
 		}
 		return records;
 	}
-	
+
+
+	//-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
 	public List<Food> getFoodList(){
 		System.out.println("in dao.getfoodlist()");
-		
+
 		RowMapper<Food> rowMapper = (rs, index) -> {
 			Food f = new Food();
 			f.setFoodId(rs.getInt("FoodId"));
@@ -172,13 +130,13 @@ public class DAObject {
 			System.out.print(records.get(i).getFoodName()  + " ");
 		}
 		return records;
-		
-		
+
+
 	}
 
 	public List<ListItem> getListItems(Long listId){
 		System.out.println("in dao getListItems");
-		
+
 		RowMapper<ListItem> rowMapper = (rs, index) -> {
 			ListItem item = new ListItem();
 			item.setItemId(rs.getInt("ListItemId"));
@@ -190,11 +148,11 @@ public class DAObject {
 			item.setSize(rs.getString("Size"));
 			return item;
 		};
-		
+
 		String sql = "select food.foodname, listitem.listid, listitem.size, listitem.listitemid, listitem.notes, listitem.foodid, listitem.quantity " +
-				 " from listitem inner join food " +
-				 " on food.foodid = listitem.foodid" +
-				 " where listid = " + listId;
+				" from listitem inner join food " +
+				" on food.foodid = listitem.foodid" +
+				" where listid = " + listId;
 		System.out.println(sql);
 		List<ListItem> records = jdbcTemplate.query(sql, rowMapper );
 		if (records.size() == 0) {
@@ -205,7 +163,7 @@ public class DAObject {
 		}
 		return records;
 	}
-	
+
 	public void addItem(ListItem item){
 		System.out.println("in DAO addItem");
 		jdbcTemplate.update(
@@ -214,7 +172,7 @@ public class DAObject {
 						item.getItemId(), item.getFoodId(), item.getListId(), item.getQuantity(),
 						item.getNotes(), item.getSize());
 	}
-	
+
 	public List<String> selectItemList() {
 		RowMapper<ListItem> rowMapper = (rs, index) -> {
 			ListItem item = new ListItem();
@@ -236,7 +194,7 @@ public class DAObject {
 		}
 		return itemNames;
 	}
-	
+
 
 	private static DataSource getDataSource() {
 		// Creates a new instance of DriverManagerDataSource and sets

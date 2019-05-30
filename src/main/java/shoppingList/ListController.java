@@ -113,17 +113,6 @@ public class ListController {
 	}
 
 
-
-	//fake one gets all lists
-	/*@RequestMapping(path ="/showlists", method = RequestMethod.GET)
-	public List<ShopList> getLists(){
-		System.out.println("Received request for lists");
-
-		List<ShopList> list = dao.getLists();
-		return list;
-	}*/
-
-	//try with Shifra's code
 	@RequestMapping(path = "/showlists", method = RequestMethod.GET)
 	public List<ShopList> getLists(@CookieValue (value = "sessionID", defaultValue="NoCookie") String sessionID) {
 		System.out.println("in controller getLists");
@@ -140,18 +129,6 @@ public class ListController {
 		
 	}
 
-
-
-	//try with cookies:
-	/*@RequestMapping(path = "/showlists", method = RequestMethod.GET)
-	public List<ShopList> getLists(HttpServletRequest request) {
-		System.out.println("in controller getLists");
-		Cookie[] cookies = request.getCookies();
-		//System.out.println("in getLists(), amt of cookies: " + cookies.length);
-		List<ShopList> list = dao.getLists();
-		return list;
-	}
-	 */
 	@RequestMapping(path ="/fooditems", method = RequestMethod.GET)
 	public List<Food> getFoodItems(){
 		System.out.println("in controller getFoodItems()");
@@ -187,27 +164,8 @@ public class ListController {
 
 	//----------------------------------------------------------------------------------
 
-	//NEED WORK METHODS:
-	/*
-	@RequestMapping(path ="/showlists", method = RequestMethod.GET)
-	public List<ShopList> getLists(@CookieValue String sessionId){
-		System.out.println("Received request for lists");
-		System.out.println("session id: " + sessionId);
-		List<ShopList> list = dao.getLists(sessions.get(sessionId));
-		return list;
-	}*/
-
-	//for trial
-	/*@RequestMapping(path ="/showlists", method = RequestMethod.GET)
-	public List<ShopList> getLists(@RequestBody String username){
-		System.out.println("Received request for lists");
-		//System.out.println("session id: " + sessionId);
-		List<ShopList> list = dao.getLists(usernames.get(username));
-		return list;
-	}*/
-
-
-
+	
+	//Methods Not currently used, to be eventually deleted:
 
 	@RequestMapping(path ="/items", method = RequestMethod.GET)
 	public List<String> retrieveLists(){
@@ -224,7 +182,7 @@ public class ListController {
 		dao.addItem(newItem);
 	}
 
-
+/*
 
 	@RequestMapping("/a/{id}") //will pick up this id from the path
 	public String indexA(@PathVariable(name="id")String id) {
@@ -235,5 +193,5 @@ public class ListController {
 	public String indexB(@PathVariable(name="id")String id, @PathVariable(name="level")String level) {
 		return "Greetings from Spring Boot! Hello from B. The id you passed is " + id 
 				+" and the level is " + level;
-	}
+	}*/
 }
