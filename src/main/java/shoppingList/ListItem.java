@@ -11,7 +11,6 @@ public class ListItem extends Food{
 	private String foodname;
 	
 	
-	
 	public int getItemId() {
 		return itemId;
 	}

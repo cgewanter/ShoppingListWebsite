@@ -33,9 +33,8 @@ public class DAObject {
 		this.jdbcTemplate = new JdbcTemplate(source);
 	}	
 
-	public User getUser(String username) {
-		System.out.println("in getUser in d"
-				+ "ao");
+	public User retrieveUser(String username) {
+		System.out.println("in getUser in dao");
 		RowMapper<User> rowMapper = (rs, index) -> {
 			User theUser = new User();
 			theUser.setFirstname(rs.getString("Firstname"));
@@ -44,13 +43,17 @@ public class DAObject {
 			theUser.setUsername(rs.getString("Username"));
 			return theUser;	
 		};
-
+		try {
 		String sql = "select * from users where username = ?";
 
 		User user = (User) jdbcTemplate.queryForObject(sql, new Object[] {username}, rowMapper);
 		System.out.println("we have the user! : " + user.getFirstname());
-
 		return user;
+		}
+		catch(Exception e){
+		System.out.println(e.getMessage() + "\n " + e.getStackTrace());
+		return null;
+		}
 	}
 
 	public void addUser(User user) {
@@ -74,8 +77,6 @@ public class DAObject {
 		return true;
 	}
 
-
-
 	public void deleteList(Long listId) {
 		System.out.println("in dao delete list");
 		//bec of foreign key, first delete from listItem table
@@ -84,7 +85,7 @@ public class DAObject {
 		System.out.println("deleted list");
 	}
 
-	public List<ShopList> getLists(String username) {
+	public List<ShopList> retrieveLists(String username) {
 		System.out.println("in getLists in dao");
 		RowMapper<ShopList> rowMapper = (rs, index) -> {
 			ShopList sl = new ShopList();
@@ -105,14 +106,9 @@ public class DAObject {
 		return records;
 	}
 
-
 	//-----------------------------------------------------------------------------------------------------------
 
-
-
-
-
-	public List<Food> getFoodList(){
+	public List<Food> retrieveFoodList(){
 		System.out.println("in dao.getfoodlist()");
 
 		RowMapper<Food> rowMapper = (rs, index) -> {
@@ -134,7 +130,7 @@ public class DAObject {
 
 	}
 
-	public List<ListItem> getListItems(Long listId){
+	public List<ListItem> retrieveListItems(Long listId){
 		System.out.println("in dao getListItems");
 
 		RowMapper<ListItem> rowMapper = (rs, index) -> {
@@ -194,7 +190,6 @@ public class DAObject {
 		}
 		return itemNames;
 	}
-
 
 	private static DataSource getDataSource() {
 		// Creates a new instance of DriverManagerDataSource and sets
